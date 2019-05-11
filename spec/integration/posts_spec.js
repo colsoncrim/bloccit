@@ -22,7 +22,7 @@ describe("routes : posts", () => {
       .then((topic) => {
         this.topic = topic;
 
-        Post.create({
+        return Post.create({
           title: "Snowball Fighting",
           body: "So much snow!",
           topicId: this.topic.id
@@ -31,11 +31,13 @@ describe("routes : posts", () => {
           this.post = post;
           done();
         })
-        .catch((err) => {
-          console.log(err);
-          done();
-        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
       });
+
     });
 
   });
