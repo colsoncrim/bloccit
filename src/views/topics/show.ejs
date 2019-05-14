@@ -7,7 +7,11 @@
     <% include ../static/partials/navbar.ejs %>
 
     <main class="container">
+      <% include ../static/partials/messages.ejs %>
       <h1><%= topic.title %></h1>
+      <form style="display:initial" action="<%= topic.id %>/destroy" method ="post">
+        <button type="submit" class="btn btn-danger">Delete</button>
+       </form>
       <a href="/topics/<%= topic.id %>/edit" class="btn btn-warning">Edit</a>
       <a href="/topics/<%= topic.id %>/posts/new" class="btn btn-success">New Post</a>
 
