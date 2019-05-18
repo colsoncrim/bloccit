@@ -1,4 +1,3 @@
-
 const request = require("request");
 const server = require("../../src/server");
 const base = "http://localhost:3000/topics/";
@@ -204,6 +203,104 @@ describe("routes : comments", () => {
 
     });
 
+    describe("Member user should not delete another member user's comment", () => {
+  describe('POST /topics/:topicId/posts/:postId/comments/create', () => {
+    beforeEach(done => {
+      request.get(
+        {
+          url: 'http://localhost:3000/auth/fake',
+          form: {
+            role: 'member',
+            userId: 21
+          }
+        },
+        (err, res, body) => {
+          done();
+        }
+      );
+    });
+    it('should not delete another members comment', done => {
+      Comment.all().then(comments => {
+        const commentCountBeforeDelete = comments.length;
+        expect(commentCountBeforeDelete).toBe(1);
+        request.post(
+          `${base}${this.topic.id}/posts/${this.post.id}/comments/${this.comment.id}/destroy`,
+          (err, res, body) => {
+            expect(res.statusCode).toBe(401);
+            Comment.all().then(comments => {
+              expect(err).toBeNull();
+              expect(comments.length).toBe(commentCountBeforeDelete);
+              done();
+            });
+          }
+        );
+      });
+    });
   });
+});
+
+  });
+
+  describe('admin user performing CRUD actions for on another user Comment', () => {
+		describe('POST /topics/:topicId/posts/:postId/comments/create', () => {
+			beforeEach(done => {
+				request.get(
+					{
+						url: 'http://localhost:3000/auth/fake',
+						form: {
+							role: 'member',
+							userId: this.user.id
+						}
+					},
+					(err, res, body) => {
+						done();
+					}
+				);
+			});
+		});
+
+
+		describe('POST /topics/:topicId/posts/:postId/comments/:id/destroy', () => {
+			beforeEach(done => {
+				User.create({
+					email: 'admin@example.com',
+					password: '123456',
+					role: 'admin'
+				}).then(user => {
+					request.get(
+						{
+							url: 'http://localhost:3000/auth/fake',
+							form: {
+								role: user.role,
+								userId: user.id,
+								email: user.email
+							}
+						},
+						(err, res, body) => {
+							done();
+						}
+					);
+				});
+			});
+
+			it('should delete another members comment', done => {
+				Comment.all().then(comments => {
+					const commentCountBeforeDelete = comments.length;
+					expect(commentCountBeforeDelete).toBe(1);
+					request.post(
+						`${base}${this.topic.id}/posts/${this.post.id}/comments/${this.comment.id}/destroy`,
+						(err, res, body) => {
+							expect(res.statusCode).toBe(302);
+							Comment.all().then(comments => {
+								expect(err).toBeNull();
+								expect(comments.length).toBe(commentCountBeforeDelete - 1);
+								done();
+							});
+						}
+					);
+				});
+			});
+		});
+	});
 
 });
