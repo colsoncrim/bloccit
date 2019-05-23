@@ -16,36 +16,23 @@ module.exports = {
 
   new(req, res, next) {
 
-    const authorized = new Authorizer(req.user).new();
+    res.render("topics/new");
 
-     if(authorized) {
-       res.render("topics/new");
-     } else {
-       req.flash("notice", "You are not authorized to do that.");
-       res.redirect("/topics");
-     }
   },
 
   create(req, res, next){
-    const authorized = new Authorizer(req.user).create();
-
-    if(authorized) {
-      let newTopic = {
-        title: req.body.title,
-        description: req.body.description
-      };
-      topicQueries.addTopic(newTopic, (err, topic) => {
-        if(err) {
-          res.redirect(500, "topics/new");
-        } else {
-          res.redirect(303, `/topics${topic.id}`)
-        }
-      });
+  let newTopic = {
+    title: req.body.title,
+    description: req.body.description
+  };
+  topicQueries.addTopic(newTopic, (err, topic) => {
+    if(err){
+      res.redirect(500, "/topics/new");
     } else {
-      req.flash("notice", "You are not authorized to do that.");
-      res.redirect("/topics");
+      res.redirect(303, `/topics/${topic.id}`);
     }
-  },
+  });
+},
 
   show(req, res, next){
 
